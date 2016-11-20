@@ -1,0 +1,3 @@
+[submodule "Dependencies/blockly"]
+	path = Dependencies/blockly
+	url = https://github.com/google/blockly
