@@ -4,6 +4,29 @@
     <meta charset="utf-8">
     <title>Task Blockly</title>
 
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    body {
+        background-color: #fff;
+        font-family: sans-serif;
+        overflow: hidden;
+    }
+    h1 {
+        font-weight: normal;
+        font-size: 140%;
+    }
+    table {
+        height: 100%;
+        width: 100%;
+    }
+    #blocklyArea {
+        height: 99%;
+    }
+    </style>
+
     <script src="Dependencies/blockly/blockly_compressed.js"></script>
     <script src="Dependencies/blockly/blocks_compressed.js"></script>
     <script src="Dependencies/blockly/msg/js/nl.js"></script>
@@ -11,72 +34,115 @@
     <script src="blocks.js"></script>
 </head>
 <body>
-    <h1><a href="https://developers.google.com/blockly/">Blockly</a></h1>
+    <table>
+        <tr>
+            <td>
+                <h1><a href="https://developers.google.com/blockly/">Blockly</a> &gt;
+                    <a href="../index.html">Demos</a> &gt; Resizable Blockly (Part 2)</h1>
 
-    <p>This is a simple demo of injecting Blockly into a fixed-sized 'div' element.</p>
+                    <p>
+                        Once an <a href="index.html">area is defined</a>, Blockly can be
+                        injected and positioned over the area.
+                        A resize handler keeps it in position as the page changes.
+                    </p>
 
-    <div id="blocklyDiv" style="height: 480px; width: 100%;"></div>
+                    <p>&rarr; More info on <a href="https://developers.google.com/blockly/guides/configure/web/resizable">injecting resizable Blockly</a>&hellip;</p>
+                </td>
+            </tr>
+            <tr>
+                <td id="blocklyArea">
+                </td>
+            </tr>
+        </table>
 
-    <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
-        <block type="task_define">
-            <field name="NAME">doSomething</field>
-        </block>
-        <block type="task_name">
-            <field name="TASK_NAME">doSomething</field>
-        </block>
-        <block type="task_forget"></block>
-        <block type="task_parallel">
-            <field name="USE1">TRUE</field>
-            <field name="USE2">TRUE</field>
-        </block>
-        <block type="task_choice">
-            <field name="ACTION1">Continue</field>
-            <field name="ACTION2">Stop</field>
-        </block>
-        <block type="task_predicate_isstable"></block>
-        <block type="task_predicate_isunstable"></block>
-        <block type="task_predicate_isthereornot"></block>
-        <block type="task_predicate_satisfies"></block>
-        <block type="task_predicate_name">
-            <field name="PREDICATE_NAME">check</field>
-        </block>
-    </xml>
+        <div id="blocklyDiv" style="position: absolute"></div>
 
-    <script>
-    var toolbox = document.getElementById("toolbox");
+        <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
+            <block type="task_define">
+                <field name="NAME">doSomething</field>
+            </block>
+            <block type="task_name">
+                <field name="TASK_NAME">doSomething</field>
+            </block>
+            <block type="task_forget"></block>
+            <block type="task_parallel">
+                <field name="USE1">TRUE</field>
+                <field name="USE2">TRUE</field>
+            </block>
+            <block type="task_choice">
+                <field name="ACTION1">Continue</field>
+                <field name="ACTION2">Stop</field>
+            </block>
+            <block type="task_predicate_isstable"></block>
+            <block type="task_predicate_isunstable"></block>
+            <block type="task_predicate_isthereornot"></block>
+            <block type="task_predicate_satisfies"></block>
+            <block type="task_predicate_name">
+                <field name="PREDICATE_NAME">check</field>
+            </block>
+        </xml>
 
-    var options = {
-        toolbox : toolbox,
-        collapse : true,
-        comments : true,
-        disable : true,
-        maxBlocks : Infinity,
-        trashcan : true,
-        horizontalLayout : false,
-        toolboxPosition : 'end',
-        css : true,
-        media : 'https://blockly-demo.appspot.com/static/media/',
-        rtl : false,
-        scrollbars : true,
-        sounds : true,
-        oneBasedIndex : false,
-        grid : {
-            spacing : 25,
-            length : 1,
-            colour : '#888',
-            snap : true
-        }
-    };
+        <script>
+        // Get elements
+        var toolbox = document.getElementById("toolbox");
+        var blocklyArea = document.getElementById('blocklyArea');
+        var blocklyDiv = document.getElementById('blocklyDiv');
 
-    /* Inject workspace */
-    var workspace = Blockly.inject('blocklyDiv', options);
+        // Set options
+        var options = {
+            toolbox : toolbox,
+            collapse : true,
+            comments : true,
+            disable : true,
+            maxBlocks : Infinity,
+            trashcan : true,
+            horizontalLayout : false,
+            toolboxPosition : 'end',
+            css : true,
+            media : 'https://blockly-demo.appspot.com/static/media/',
+            rtl : false,
+            scrollbars : true,
+            sounds : true,
+            oneBasedIndex : false,
+            grid : {
+                spacing : 25,
+                length : 1,
+                colour : '#888',
+                snap : true
+            }
+        };
 
-    /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
-    // var workspaceBlocks = document.getElementById("workspaceBlocks");
+        // Inject workspace
+        var workspace = Blockly.inject(blocklyDiv, options);
 
-    /* Load blocks to workspace. */
-    // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks);
-    </script>
+        var onResize = function(e) {
+            // Compute the absolute coordinates and dimensions of blocklyArea.
+            var element = blocklyArea;
+            var x = 0;
+            var y = 0;
+            do {
+                x += element.offsetLeft;
+                y += element.offsetTop;
+                element = element.offsetParent;
+            } while (element);
 
-</body>
-</html>
+            // Position blocklyDiv over blocklyArea.
+            blocklyDiv.style.left = x + 'px';
+            blocklyDiv.style.top = y + 'px';
+            blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+            blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+        };
+        window.addEventListener('resize', onResize, false);
+        onResize();
+        Blockly.svgResize(workspace);
+
+
+        /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
+        // var workspaceBlocks = document.getElementById("workspaceBlocks");
+
+        /* Load blocks to workspace. */
+        // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks);
+        </script>
+
+    </body>
+    </html>
