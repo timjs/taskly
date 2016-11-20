@@ -3,9 +3,12 @@
 <head>
     <meta charset="utf-8">
     <title>Task Blockly</title>
+
     <script src="Dependencies/blockly/blockly_compressed.js"></script>
     <script src="Dependencies/blockly/blocks_compressed.js"></script>
     <script src="Dependencies/blockly/msg/js/nl.js"></script>
+
+    <script src="blocks.js"></script>
 </head>
 <body>
     <h1><a href="https://developers.google.com/blockly/">Blockly</a></h1>
@@ -14,19 +17,65 @@
 
     <div id="blocklyDiv" style="height: 480px; width: 100%;"></div>
 
-    <xml id="toolbox" style="display: none">
-        <block type="controls_if"></block>
-        <block type="controls_repeat_ext"></block>
-        <block type="logic_compare"></block>
-        <block type="math_number"></block>
-        <block type="math_arithmetic"></block>
-        <block type="text"></block>
-        <block type="text_print"></block>
+    <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
+        <block type="task_define">
+            <field name="NAME">doSomething</field>
+        </block>
+        <block type="task_name">
+            <field name="TASK_NAME">doSomething</field>
+        </block>
+        <block type="task_forget"></block>
+        <block type="task_parallel">
+            <field name="USE1">TRUE</field>
+            <field name="USE2">TRUE</field>
+        </block>
+        <block type="task_choice">
+            <field name="ACTION1">Continue</field>
+            <field name="ACTION2">Stop</field>
+        </block>
+        <block type="task_predicate_isstable"></block>
+        <block type="task_predicate_isunstable"></block>
+        <block type="task_predicate_isthereornot"></block>
+        <block type="task_predicate_satisfies"></block>
+        <block type="task_predicate_name">
+            <field name="PREDICATE_NAME">check</field>
+        </block>
     </xml>
 
     <script>
-    var workspace = Blockly.inject('blocklyDiv',
-        {toolbox: document.getElementById('toolbox')});
+    var toolbox = document.getElementById("toolbox");
+
+    var options = {
+        toolbox : toolbox,
+        collapse : true,
+        comments : true,
+        disable : true,
+        maxBlocks : Infinity,
+        trashcan : true,
+        horizontalLayout : false,
+        toolboxPosition : 'end',
+        css : true,
+        media : 'https://blockly-demo.appspot.com/static/media/',
+        rtl : false,
+        scrollbars : true,
+        sounds : true,
+        oneBasedIndex : false,
+        grid : {
+            spacing : 25,
+            length : 1,
+            colour : '#888',
+            snap : true
+        }
+    };
+
+    /* Inject workspace */
+    var workspace = Blockly.inject('blocklyDiv', options);
+
+    /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
+    // var workspaceBlocks = document.getElementById("workspaceBlocks");
+
+    /* Load blocks to workspace. */
+    // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks);
     </script>
 
 </body>
