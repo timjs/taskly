@@ -1,186 +1,190 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Taskly</title>
+  <meta charset="utf-8">
+  <title>Taskly</title>
 
-    <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-    }
-    body {
-        background-color: #fff;
-        font-family: sans-serif;
-        overflow: hidden;
-    }
-    table {
-        height: 100%;
-        width: 100%;
-    }
-    #blocklyArea {
-        height: 100%;
-    }
-    </style>
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background-color: #fff;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
+  table {
+    height: 100%;
+    width: 100%;
+  }
+  #blocklyArea {
+    height: 100%;
+  }
+  </style>
 
-    <script src="Dependencies/blockly/blockly_compressed.js"></script>
-    <script src="Dependencies/blockly/blocks_compressed.js"></script>
-    <script src="Dependencies/blockly/msg/js/nl.js"></script>
+  <script src="Dependencies/blockly/blockly_compressed.js"></script>
+  <script src="Dependencies/blockly/blocks_compressed.js"></script>
+  <script src="Dependencies/blockly/msg/js/nl.js"></script>
 
-    <script src="blocks.js"></script>
+  <script src="blocks.js"></script>
 </head>
 <body>
 
-    <table>
-        <tr>
-            <td>
-                <h1>Taskly</h1>
-                <input type="file" id="fileInput" accept="text/xml" />
-                <button id="importButton">Import</button>
-                <button id="exportButton">Export...</button>
-            </td>
-        </tr>
-        <tr>
-            <td id="blocklyArea">
-            </td>
-        </tr>
-    </table>
+  <table>
+    <tr>
+      <td>
+        <h1>Taskly</h1>
+        <input type="file" id="fileInput" accept="text/xml" />
+        <button id="importButton">Import</button>
+        <button id="exportButton">Export...</button>
+      </td>
+    </tr>
+    <tr>
+      <td id="blocklyArea">
+      </td>
+    </tr>
+  </table>
 
-    <div id="blocklyDiv" style="position: absolute"></div>
+  <div id="blocklyDiv" style="position: absolute"></div>
 
-    <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
-        <block type="task_define">
-            <field name="NAME">doSomething</field>
-        </block>
-        <block type="task_name">
-            <field name="TASK_NAME">doSomething</field>
-        </block>
-        <block type="task_forget"></block>
-        <block type="task_parallel">
-            <field name="USE1">TRUE</field>
-            <field name="USE2">TRUE</field>
-        </block>
-        <block type="task_choice">
-            <field name="ACTION1">Continue</field>
-            <field name="ACTION2">Stop</field>
-        </block>
-        <block type="task_predicate_isstable"></block>
-        <block type="task_predicate_isunstable"></block>
-        <block type="task_predicate_isthereornot"></block>
-        <block type="task_predicate_satisfies"></block>
-        <block type="task_predicate_name">
-            <field name="PREDICATE_NAME">check</field>
-        </block>
-    </xml>
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
+    <block type="task_define">
+      <field name="NAME">doSomething</field>
+    </block>
+    <block type="task_name">
+      <field name="TASK_NAME">doSomething</field>
+    </block>
+    <block type="task_return">
+      <field name="VALUE">value</field>
+    </block>
+    <block type="task_forget"></block>
+    <block type="task_parallel">
+      <field name="USE1">TRUE</field>
+      <field name="USE2">TRUE</field>
+    </block>
+    <block type="task_choice">
+      <field name="ACTION1">Continue</field>
+      <field name="ACTION2">Stop</field>
+    </block>
+    <block type="task_predicate_isstable"></block>
+    <block type="task_predicate_isunstable"></block>
+    <block type="task_predicate_isthereornot"></block>
+    <block type="task_predicate_satisfies"></block>
+    <block type="task_predicate_name">
+      <field name="PREDICATE_NAME">check</field>
+    </block>
+  </xml>
 
-    <script>
+  <script>
+  /*global Blockly*/
 
-    // Define helpers
-    var Helpers = {}
+  // Define helpers
+  var Helpers = {}
 
-    Helpers.download = function(name, type, text) {
-        var a = document.createElement("a")
-        var data = new Blob([text], {type: type})
-        a.href = URL.createObjectURL(data)
-        a.download = name
-        a.click()
+  Helpers.download = function (name, type, text) {
+    var a = document.createElement('a')
+    var data = new window.Blob([text], {type: type})
+    a.href = window.URL.createObjectURL(data)
+    a.download = name
+    a.click()
+  }
+
+  Helpers.upload = function (file, handler) {
+    if (!window.FileReader) {
+      window.alert('Your browser is not supported')
+      return
     }
 
-    Helpers.upload = function(file, handler) {
-        if (!FileReader) {
-            alert("Your browser is not supported")
-            return
-        }
-
-        var reader = new FileReader()
-        reader.readAsText(file)
-        reader.onload = function(event) {
-            handler(event.target.result)
-        }
+    var reader = new window.FileReader()
+    reader.readAsText(file)
+    reader.onload = function (event) {
+      handler(event.target.result)
     }
+  }
 
-    // Get elements
-    var toolbox = document.getElementById("toolbox")
-    var blocklyArea = document.getElementById("blocklyArea")
-    var blocklyDiv = document.getElementById("blocklyDiv")
+  // Get elements
+  var toolbox = document.getElementById('toolbox')
+  var blocklyArea = document.getElementById('blocklyArea')
+  var blocklyDiv = document.getElementById('blocklyDiv')
 
-    var fileInput = document.getElementById("fileInput")
-    var importButton = document.getElementById("importButton")
-    var exportButton = document.getElementById("exportButton")
+  var fileInput = document.getElementById('fileInput')
+  var importButton = document.getElementById('importButton')
+  var exportButton = document.getElementById('exportButton')
 
-    // Set options
-    var options = {
-        toolbox : toolbox,
-        collapse : true,
-        comments : true,
-        disable : true,
-        maxBlocks : Infinity,
-        trashcan : true,
-        horizontalLayout : false,
-        toolboxPosition : "end",
-        css : true,
-        media : "https://blockly-demo.appspot.com/static/media/",
-        rtl : false,
-        scrollbars : true,
-        sounds : true,
-        oneBasedIndex : false,
-        grid : {
-            spacing : 25,
-            length : 1,
-            colour : "#888",
-            snap : true
-        }
+  // Set options
+  var options = {
+    toolbox: toolbox,
+    collapse: true,
+    comments: true,
+    disable: true,
+    maxBlocks: Infinity,
+    trashcan: true,
+    horizontalLayout: false,
+    toolboxPosition: 'end',
+    css: true,
+    media: 'https://blockly-demo.appspot.com/static/media/',
+    rtl: false,
+    scrollbars: false,
+    sounds: true,
+    oneBasedIndex: false,
+    grid: {
+      spacing: 25,
+      length: 1,
+      colour: '#888',
+      snap: true
     }
+  }
 
-    // Inject workspace
-    var workspace = Blockly.inject(blocklyDiv, options)
+  // Inject workspace
+  var workspace = Blockly.inject(blocklyDiv, options)
 
-    var resizeBlockly = function(_event) {
-        // Compute the absolute coordinates and dimensions of blocklyArea.
-        var element = blocklyArea
-        var x = 0
-        var y = 0
-        do {
-            x += element.offsetLeft
-            y += element.offsetTop
-            element = element.offsetParent
-        } while (element)
+  var resizeBlockly = function (_event) {
+    // Compute the absolute coordinates and dimensions of blocklyArea.
+    var element = blocklyArea
+    var x = 0
+    var y = 0
+    do {
+      x += element.offsetLeft
+      y += element.offsetTop
+      element = element.offsetParent
+    } while (element)
 
-        // Position blocklyDiv over blocklyArea.
-        blocklyDiv.style.left = x + "px"
-        blocklyDiv.style.top = y + "px"
-        blocklyDiv.style.width = blocklyArea.offsetWidth + "px"
-        blocklyDiv.style.height = blocklyArea.offsetHeight + "px"
+    // Position blocklyDiv over blocklyArea.
+    blocklyDiv.style.left = x + 'px'
+    blocklyDiv.style.top = y + 'px'
+    blocklyDiv.style.width = blocklyArea.offsetWidth + 'px'
+    blocklyDiv.style.height = blocklyArea.offsetHeight + 'px'
+  }
+  window.onresize = resizeBlockly
+  resizeBlockly()
+  Blockly.svgResize(workspace)
+
+  /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
+  // var workspaceBlocks = document.getElementById('workspaceBlocks')
+
+  /* Load blocks to workspace. */
+  // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks)
+
+  // Add event handles
+  importButton.onclick = function () {
+    if (fileInput.files.length === 0) {
+      window.alert('Please upload a file before continuing')
+      return
     }
-    window.onresize = resizeBlockly
-    resizeBlockly()
-    Blockly.svgResize(workspace)
+    Helpers.upload(fileInput.files[0], function (text) {
+      var xml = Blockly.Xml.textToDom(text)
+      Blockly.Xml.domToWorkspace(xml, workspace)
+    })
+  }
 
-    /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
-    // var workspaceBlocks = document.getElementById("workspaceBlocks")
+  exportButton.onclick = function () {
+    var xml = Blockly.Xml.workspaceToDom(workspace)
+    var xml_text = Blockly.Xml.domToPrettyText(xml)
+    Helpers.download('tasks.xml', 'text/plain', xml_text)
+  }
 
-    /* Load blocks to workspace. */
-    // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks)
-
-    // Add event handles
-    importButton.onclick = function() {
-        if (fileInput.files.length == 0) {
-            alert("Please upload a file before continuing")
-            return
-        }
-        Helpers.upload(fileInput.files[0], function(text) {
-            var xml = Blockly.Xml.textToDom(text)
-            Blockly.Xml.domToWorkspace(xml, workspace)
-        })
-    }
-
-    exportButton.onclick = function() {
-        var xml = Blockly.Xml.workspaceToDom(workspace)
-        var xml_text = Blockly.Xml.domToPrettyText(xml)
-        Helpers.download("tasks.xml", "text/plain", xml_text)
-    }
-
-    </script>
+  </script>
 
 </body>
 </html>
