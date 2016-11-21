@@ -76,6 +76,128 @@
     </block>
   </xml>
 
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="workspace" style="display: none;">
+    <block type="task_define" id="jJc7$MFt@o|0)@kv,MeL" x="37" y="38">
+      <field name="NAME">handle</field>
+      <statement name="NAME">
+        <block type="task_name" id="aU)j,Zv`J~DJBL@X]!Kw">
+          <field name="TASK_NAME">handleEmergencyCall processPhoneCall</field>
+        </block>
+      </statement>
+    </block>
+    <block type="task_define" id="V)0Wu%-wCo|sa`1c,i`]" x="587" y="38">
+      <field name="NAME">coordinate</field>
+      <statement name="NAME">
+        <block type="task_name" id=",L{q0q;M^7^w,:l^RW+p">
+          <field name="TASK_NAME">updateShare (add call) emergencies</field>
+          <next>
+            <block type="task_parallel" id="+qqxOu:1i/*#zAPEZQfA">
+              <field name="USE1">TRUE</field>
+              <field name="USE2">TRUE</field>
+              <statement name="TASK1">
+                <block type="task_name" id="O;m)[;nA}o2Rxe`129@q">
+                  <field name="TASK_NAME">alertAmbulance</field>
+                </block>
+              </statement>
+              <statement name="TASK2">
+                <block type="task_name" id="[RzcivL_HL(z8+7qgTP[">
+                  <field name="TASK_NAME">alertPolice</field>
+                </block>
+              </statement>
+              <next>
+                <block type="task_name" id="s?P7v#wpfTXC,SsmsJ.c">
+                  <field name="TASK_NAME">showSuccesOfVerdicts</field>
+                </block>
+              </next>
+            </block>
+          </next>
+        </block>
+      </statement>
+    </block>
+    <block type="task_define" id="]S{zfJXqy`yh%icR[ijC" x="37" y="138">
+      <field name="NAME">processPhoneCall</field>
+      <statement name="NAME">
+        <block type="task_name" id="@-(n91g%zwU[oYEmHJp9">
+          <field name="TASK_NAME">get currentDateTime</field>
+          <next>
+            <block type="task_name" id=".G(Br-{Pf.ew-qC~jX,N">
+              <field name="TASK_NAME">logCall</field>
+            </block>
+          </next>
+        </block>
+      </statement>
+    </block>
+    <block type="task_define" id="w7=WT7fQ*$F{w7751LC%" x="37" y="263">
+      <field name="NAME">logCall</field>
+      <statement name="NAME">
+        <block type="task_name" id="k*dyyH(aJYlNr_n9:spZ">
+          <field name="TASK_NAME">enterInformation "Enter call information"</field>
+        </block>
+      </statement>
+    </block>
+    <block type="task_define" id="CM?fWMk|2^_gx|1aL~Nz" x="37" y="363">
+      <field name="NAME">handleEmergencyCall</field>
+      <statement name="NAME">
+        <block type="task_name" id="etQDbYwW*3Zp3)%g[eL:">
+          <field name="TASK_NAME">doIntake</field>
+          <next>
+            <block type="task_choice" id="J`n0!by($;GGe`i~ii.!">
+              <field name="ACTION1">Continue</field>
+              <field name="ACTION2">Fake call</field>
+              <value name="PREDICATE1">
+                <block type="task_predicate_satisfies" id="n89QK_.no+ZRH.F8*~qg">
+                  <value name="NAME">
+                    <block type="task_predicate_name" id="UiC|mB2Wbm!Br2$-tng*">
+                      <field name="PREDICATE_NAME">requiresAuthorities</field>
+                    </block>
+                  </value>
+                </block>
+              </value>
+              <statement name="TASK1">
+                <block type="task_name" id="B-`-8)fbg_08z-IXNDp%">
+                  <field name="TASK_NAME">coordinate</field>
+                </block>
+              </statement>
+              <value name="PREDICATE2">
+                <block type="task_predicate_isthereornot" id="SCN:J|Y]c3AyLKU`|oN("></block>
+              </value>
+              <statement name="TASK2">
+                <block type="task_return" id="#wBxPE4@/{-gDn2N:|uP">
+                  <field name="VALUE">FakeCall</field>
+                </block>
+              </statement>
+            </block>
+          </next>
+        </block>
+      </statement>
+    </block>
+    <block type="task_define" id="9c}.`f1Z~h[oZm$;@?lk" x="587" y="363">
+      <field name="NAME">showSuccesOfVerdicts</field>
+      <statement name="NAME">
+        <block type="task_choice" id="]!A0|GVA2)S!rpd8NL@O">
+          <field name="ACTION1">Ok</field>
+          <field name="ACTION2">Fail</field>
+          <value name="PREDICATE1">
+            <block type="task_predicate_isthereornot" id="xuZ-8a8?|cgMC?f`Fcm4"></block>
+          </value>
+          <statement name="TASK1">
+            <block type="task_return" id="M!A{l!rq$ZX~7jtjmz,#">
+              <field name="VALUE">value</field>
+            </block>
+          </statement>
+          <value name="PREDICATE2">
+            <block type="task_predicate_isthereornot" id="o=1nKYrr3.WViBqQ%|*x"></block>
+          </value>
+          <statement name="TASK2">
+            <block type="task_name" id="i5L]Z:Zo2g@tCnZ@:[F#">
+              <field name="TASK_NAME">viewInformation</field>
+            </block>
+          </statement>
+        </block>
+      </statement>
+    </block>
+  </xml>
+
   <script>
   /*global Blockly*/
 
@@ -160,11 +282,9 @@
   resizeBlockly()
   Blockly.svgResize(workspace)
 
-  /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
-  // var workspaceBlocks = document.getElementById('workspaceBlocks')
-
-  /* Load blocks to workspace. */
-  // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks)
+  // Load blocks to workspace
+  var blocks = document.getElementById('workspace')
+  Blockly.Xml.domToWorkspace(workspace, blocks)
 
   // Add event handles
   importButton.onclick = function () {
