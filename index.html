@@ -35,9 +35,9 @@
         <tr>
             <td>
                 <h1>Taskly</h1>
-                <input id="input_importTasks" type="file" accept="text/xml" />
-                <button id="button_importTasks">Import...</button>
-                <button id="button_exportTasks">Export...</button>
+                <input type="file" id="fileInput" accept="text/xml" />
+                <button id="importButton">Import</button>
+                <button id="exportButton">Export...</button>
             </td>
         </tr>
         <tr>
@@ -74,10 +74,37 @@
     </xml>
 
     <script>
+
+    // Define helpers
+    function download(name, type, text) {
+        var a = document.createElement('a')
+        var data = new Blob([text], {type: type})
+        a.href = URL.createObjectURL(data)
+        a.download = name
+        a.click()
+    }
+
+    function upload(file, handler) {
+        if (!FileReader) {
+            alert('Your browser is not supported')
+            return
+        }
+
+        var reader = new FileReader()
+        reader.readAsText(file)
+        reader.onload = function(event) {
+            handler(event.target.result)
+        }
+    }
+
     // Get elements
     var toolbox = document.getElementById("toolbox");
     var blocklyArea = document.getElementById('blocklyArea');
     var blocklyDiv = document.getElementById('blocklyDiv');
+
+    var fileInput = document.getElementById("fileInput")
+    var importButton = document.getElementById("importButton")
+    var exportButton = document.getElementById("exportButton")
 
     // Set options
     var options = {
@@ -127,12 +154,30 @@
     onResize();
     Blockly.svgResize(workspace);
 
-
     /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
     // var workspaceBlocks = document.getElementById("workspaceBlocks");
 
     /* Load blocks to workspace. */
     // Blockly.Xml.domToWorkspace(workspace, workspaceBlocks);
+
+    // Add event handles
+    importButton.onclick = function() {
+        if (fileInput.files.length == 0) {
+            alert('Please upload a file before continuing')
+            return
+        }
+        upload(fileInput.files[0], function(text) {
+            var xml = Blockly.Xml.textToDom(text)
+            Blockly.Xml.domToWorkspace(xml, workspace)
+        })
+    }
+
+    exportButton.onclick = function() {
+        var xml = Blockly.Xml.workspaceToDom(workspace)
+        var xml_text = Blockly.Xml.domToPrettyText(xml)
+        download('tasks.xml', 'text/plain', xml_text)
+    }
+
     </script>
 
 </body>
